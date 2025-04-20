@@ -323,7 +323,8 @@ class Controls:
     if CS.gasPressed:
       self.events.add(EventName.gasPressedOverride)
 
-    #if not self.CP.notCar and not self.dp_jetson:
+    if not self.CP.notCar and not self.dp_jetson:
+      ignore += ['driverCameraState', 'driverMonitoringState']
       #self.events.add_from_msg(self.sm['driverMonitoringState'].events)
     self.events.add_from_msg(self.sm['longitudinalPlan'].eventsDEPRECATED)
 
