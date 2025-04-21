@@ -98,8 +98,9 @@ class Controls:
       if self.params.get_bool('WideCameraOnly'):
         ignore += ['roadCameraState']
       if self.dp_jetson:
+        ignore += ['driverCameraState', 'driverMonitoringState']
       self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
-                                     'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
+                                     'driverMonitoringState', 'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
                                      'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters', 'dragonConf', 'testJoystick'] + self.camera_packets,
                                     ignore_alive=ignore, ignore_avg_freq=['radarState', 'longitudinalPlan','testJoystick', 'dragonConf'])
 
@@ -323,8 +324,8 @@ class Controls:
       self.events.add(EventName.gasPressedOverride)
 
     if not self.CP.notCar and not self.dp_jetson:
-      ignore += ['driverCameraState', 'driverMonitoringState']
-      self.events.add_from_msg(self.sm['longitudinalPlan'].eventsDEPRECATED)
+      self.events.add_from_msg(self.sm['driverMonitoringState'].events)
+    self.events.add_from_msg(self.sm['longitudinalPlan'].eventsDEPRECATED)
 
     # Add car events, ignore if CAN isn't valid
     if CS.canValid:
@@ -867,7 +868,8 @@ class Controls:
       else:
         self.steer_limited = abs(CC.actuators.steer - CC.actuatorsOutput.steer) > 1e-2
 
-    force_decel = (self.state == State.softDisabling)
+    force_decel = (self.sm['driverMonitoringState'].awarenessStatus < 0.) or \
+                  (self.state == State.softDisabling)
 
     # Curvature & Steering angle
     lp = self.sm['liveParameters']
