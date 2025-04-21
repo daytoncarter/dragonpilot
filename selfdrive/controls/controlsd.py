@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 import os
 import math
@@ -100,7 +101,7 @@ class Controls:
       if self.dp_jetson:
         ignore += ['driverCameraState', 'driverMonitoringState']
       self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
-                                     'driverMonitoringState', 'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
+                                     'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
                                      'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters', 'dragonConf', 'testJoystick'] + self.camera_packets,
                                     ignore_alive=ignore, ignore_avg_freq=['radarState', 'longitudinalPlan','testJoystick', 'dragonConf'])
 
