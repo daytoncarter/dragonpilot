@@ -92,7 +92,7 @@ class Controls:
     # self.params = Params()
     self.sm = sm
     if self.sm is None:
-      ignore += ['driverCameraState', 'driverMonitoringState', 'testJoystick']
+      ignore = ['testJoystick']
       if SIMULATION:
         ignore += ['driverCameraState', 'managerState']
       if self.params.get_bool('WideCameraOnly'):
@@ -100,7 +100,7 @@ class Controls:
       if self.dp_jetson:
         ignore += ['driverCameraState', 'driverMonitoringState']
       self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
-                                     'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
+                                     'driverMonitoringState', 'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
                                      'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters', 'dragonConf', 'testJoystick'] + self.camera_packets,
                                     ignore_alive=ignore, ignore_avg_freq=['radarState', 'longitudinalPlan','testJoystick', 'dragonConf'])
 
@@ -868,7 +868,8 @@ class Controls:
       else:
         self.steer_limited = abs(CC.actuators.steer - CC.actuatorsOutput.steer) > 1e-2
 
-    force_decel = (self.state == State.softDisabling)
+    force_decel = (self.sm['driverMonitoringState'].awarenessStatus < 0.) or \
+                  (self.state == State.softDisabling)
 
     # Curvature & Steering angle
     lp = self.sm['liveParameters']
